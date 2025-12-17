@@ -3,15 +3,14 @@ project(MPI_CUDA C)
 
 set(CMAKE_C_STANDARD 11)
 
-find_package(OpenMP REQUIRED)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fopenmp")
 
 # Mandelbrot (OpenMP)
 add_executable(mandelbrot src/mandelbrot.c)
-target_link_libraries(mandelbrot PUBLIC OpenMP::OpenMP_C)
 
 # N-body CPU
 add_executable(nbody_cpu src/n_body_cpu.c)
-target_link_libraries(nbody_cpu PUBLIC OpenMP::OpenMP_C)
 
 # N-body CUDA
 # enable_language(CUDA)
