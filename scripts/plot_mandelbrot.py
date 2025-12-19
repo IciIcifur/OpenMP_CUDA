@@ -1,16 +1,18 @@
 import sys
 from pathlib import Path
-
+import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 
 METRICS_CSV = ROOT_DIR / "results" / "mandelbrot" / "metrics_task1.csv"
+POINTS_CSV = ROOT_DIR / "results" / "mandelbrot" / "points_task1.csv"
 
 OUT_DIR = ROOT_DIR / "results" / "mandelbrot"
 SPEEDUP_PNG = OUT_DIR / "mandelbrot_speedup.png"
 EFFICIENCY_PNG = OUT_DIR / "mandelbrot_efficiency.png"
+FRACTAL_PNG = OUT_DIR / "mandelbrot_fractal.png"
 
 
 def load_metrics():
@@ -73,6 +75,41 @@ def plot_efficiency(df):
     plt.savefig(EFFICIENCY_PNG)
     plt.close()
 
+def plot_fractal():
+    if not POINTS_CSV.exists():
+        raise FileNotFoundError(
+            f"Points file not found: {POINTS_CSV}\n"
+        )
+
+    df = pd.read_csv(POINTS_CSV)
+
+    required_cols = {"x", "y"}
+    if not required_cols.issubset(df.columns):
+        raise ValueError(
+            f"CSV {POINTS_CSV} must contain columns: {required_cols}, "
+            f"but has: {set(df.columns)}"
+        )
+
+    bins = 512
+
+    H, xedges, yedges = np.histogram2d(df['x'], df['y'], bins=bins)
+
+    extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
+
+    plt.figure(figsize=(8, 8), dpi=150)
+    plt.imshow(np.log10(H.T + 1), extent=extent, origin='lower', cmap='turbo', aspect='auto')
+    plt.imshow(H.T, extent=extent, origin='lower', cmap='turbo', aspect='auto')
+    plt.colorbar(label="Density")
+    plt.xlabel("x")
+    plt.ylabel("y")
+    plt.title(f"Mandelbrot: Fractal Plot (density: {bins}x{bins} bins)")
+    plt.axis("equal")
+    plt.tight_layout()
+    plt.savefig(FRACTAL_PNG)
+    plt.close()
+
+    return 0
+
 
 def main():
     print(f"[INFO] Reading metrics from {METRICS_CSV}")
@@ -83,6 +120,9 @@ def main():
 
     print(f"[INFO] Plotting efficiency -> {EFFICIENCY_PNG}")
     plot_efficiency(df)
+
+    print(f"[INFO] Plotting fractal -> {FRACTAL_PNG}")
+    plot_fractal()
 
     print("[INFO] Done.")
 

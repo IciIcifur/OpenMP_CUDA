@@ -8,7 +8,7 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 
 BUILD_DIR = ROOT_DIR / "cmake-build-debug"
 
-MANDEL_EXE = BUILD_DIR / "Debug" / "mandelbrot.exe"
+MANDEL_EXE = BUILD_DIR / "mandelbrot.exe"
 
 RESULTS_DIR = ROOT_DIR / "results" / "mandelbrot"
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -150,8 +150,8 @@ def save_metrics_csv(
 
 def main():
     nthreads_list = [1, 2, 4, 8, 16]
-    npoints = 100
-    runs_per_config = 5
+    npoints = 5000
+    runs_per_config = 10
 
     print(f"[INFO] Mandelbrot executable: {MANDEL_EXE}")
     print(f"[INFO] Results directory:     {RESULTS_DIR}")

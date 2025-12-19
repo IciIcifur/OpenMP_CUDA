@@ -9,8 +9,7 @@ int main(const int argc, char *argv[]) {
     }
 
     int nthreads = atoi(argv[1]);
-    int npoints  = atoi(argv[2]);
-
+    int npoints = atoi(argv[2]);
     if (nthreads <= 0 || npoints <= 0) {
         fprintf(stderr, "nthreads and npoints must be positive\n");
         return 1;
@@ -22,8 +21,12 @@ int main(const int argc, char *argv[]) {
     const double xmin = -2.0, xmax = 1.0;
     const double ymin = -1.5, ymax = 1.5;
 
-    // File Title
-    printf("x,y\n");
+    // Массив точек
+    char *mask = calloc(npoints * npoints, sizeof(char));
+    if (!mask) {
+        fprintf(stderr, "Allocation failed\n");
+        return 2;
+    }
 
     const double t_start = omp_get_wtime();
 
@@ -45,10 +48,7 @@ int main(const int argc, char *argv[]) {
             }
 
             if (iter == max_iter) {
-                #pragma omp critical
-                {
-                    printf("%.10f,%.10f\n", x, y);
-                }
+                mask[i * npoints + j] = 1;
             }
         }
     }
@@ -58,5 +58,22 @@ int main(const int argc, char *argv[]) {
 
     fprintf(stderr, "TIME_SECONDS=%.6f\n", elapsed);
 
+    FILE *f = fopen("results/mandelbrot/points_task1.csv", "w");
+    if (!f) {
+        fprintf(stderr, "Could not open points output file\n");
+        free(mask);
+        return 3;
+    }
+    fprintf(f, "x,y\n");
+    for (int i = 0; i < npoints; ++i)
+        for (int j = 0; j < npoints; ++j)
+            if (mask[i * npoints + j]) {
+                double x = xmin + (xmax - xmin) * i / (npoints - 1);
+                double y = ymin + (ymax - ymin) * j / (npoints - 1);
+                fprintf(f, "%.10f,%.10f\n", x, y);
+            }
+    fclose(f);
+
+    free(mask);
     return 0;
 }
