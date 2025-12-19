@@ -59,9 +59,9 @@ def run_powershell_script(script: Path, args: list[str], env: dict | None = None
 
 def collect_metrics(target: str) -> dict | None:
     if target == "cpu":
-        mpath = RESULTS_DIR / "nbody_cpu" / "metrics_cpu.txt"
+        mpath = SCRIPTS_DIR / "results" / "nbody_cpu" / "metrics_cpu.txt"
     else:
-        mpath = RESULTS_DIR / "nbody_cuda" / "metrics_cuda.txt"
+        mpath = SCRIPTS_DIR / "results" / "nbody_cuda" / "metrics_cuda.txt"
 
     if not mpath.exists():
         print(f"[WARN] Metrics file not found for target={target}: {mpath}")
