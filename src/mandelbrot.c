@@ -2,14 +2,7 @@
 #include <stdlib.h>
 #include <omp.h>
 
-/*
- * Параллельный расчёт множества Мандельброта.
- *
- * Запуск:
- *   ./mandelbrot nthreads npoints
- */
 int main(const int argc, char *argv[]) {
-    // Checking arguments
     if (argc != 3) {
         fprintf(stderr, "Usage: %s nthreads npoints\n", argv[0]);
         return 1;
@@ -32,7 +25,8 @@ int main(const int argc, char *argv[]) {
     // File Title
     printf("x,y\n");
 
-    // 2-dimensional cycle on grid
+    const double t_start = omp_get_wtime();
+
     #pragma omp parallel for collapse(2) schedule(static)
     for (int i = 0; i < npoints; ++i) {
         for (int j = 0; j < npoints; ++j) {
@@ -51,13 +45,18 @@ int main(const int argc, char *argv[]) {
             }
 
             if (iter == max_iter) {
-            #pragma omp critical
+                #pragma omp critical
                 {
                     printf("%.10f,%.10f\n", x, y);
                 }
             }
         }
     }
+
+    const double t_end = omp_get_wtime();
+    const double elapsed = t_end - t_start;
+
+    fprintf(stderr, "TIME_SECONDS=%.6f\n", elapsed);
 
     return 0;
 }
